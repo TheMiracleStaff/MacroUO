@@ -1,0 +1,81 @@
+name: Build & Release The Miracle
+
+on:
+  push:
+    branches:
+      - "tm-main"
+    paths-ignore:
+      - '**/README.md'
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - Release
+
+    env:
+      Solution_Path: Solution/MacroUO.sln
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build the application
+        run: msbuild $env:Solution_Path /p:Configuration=$env:Configuration /m
+        env:
+          Configuration: ${{ matrix.configuration }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: MacroUO-${{ runner.os }}-${{ runner.arch }}
+          path: ./Solution/Output/Release/
+
+  release:
+    name: Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    env:
+      Asset_Name: MacroUO-TM-Windows-x64-${{ github.ref_name }}
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: MacroUO-Windows-X64
+          path: ./MacroUO-Windows-X64/
+
+      - name: Archive release
+        run: 7z a -tzip ${{ env.Asset_Name }}.zip './MacroUO-Windows-X64'
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2.6.1
+        with:
+          name: MacroUO TM ${{ github.ref_name }}
+          generate_release_notes: true
+          make_latest: true
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          files: ${{ env.Asset_Name }}.zip

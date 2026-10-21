@@ -1,0 +1,46 @@
+name: Build (PR)
+
+on:
+  pull_request:
+    branches:
+      - "tm-main"
+    paths-ignore:
+      - '**/README.md'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        configuration:
+          - Release
+
+    env:
+      Solution_Path: Solution/MacroUO.sln
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build the application
+        run: msbuild $env:Solution_Path /p:Configuration=$env:Configuration /m
+        env:
+          Configuration: ${{ matrix.configuration }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: MacroUO-PR${{ github.event.pull_request.number }}-${{ github.sha }}
+          path: ./Solution/Output/Release/
+          retention-days: 7
