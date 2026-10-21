@@ -1012,13 +1012,12 @@ namespace MacroUO
         private Boolean EnumerateWindow(IntPtr windowHandle, IntPtr lParameter)
         {
             String windowClass = NativeMethods.GetWindowClass(windowHandle);
-
-            if (!windowClass.Contains("Ultima Online"))
-                return true;
-
             String windowText = NativeMethods.GetWindowText(windowHandle);
 
-            if (!windowText.Contains("Ultima Online - "))
+            Boolean isClassicClient = windowClass.Contains("Ultima Online") && windowText.Contains("Ultima Online - ");
+            Boolean isClassicUo = (windowClass == "SDL_app") && windowText.Contains("ClassicUO");
+
+            if (!isClassicClient && !isClassicUo)
                 return true;
 
             UInt32 windowThreadId = NativeMethods.GetWindowThreadId(windowHandle);
