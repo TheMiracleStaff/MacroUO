@@ -45,7 +45,10 @@ jobs:
         uses: actions/upload-artifact@v7.0.0
         with:
           name: MacroUO-${{ runner.os }}-${{ runner.arch }}
-          path: ./Solution/Output/Release/
+          path: |
+            ./Solution/Output/Release/MacroUO.exe
+            ./Solution/Output/Release/MacroUO.exe.config
+            ./Solution/Output/Release/Presets.xml
 
   release:
     name: Release
