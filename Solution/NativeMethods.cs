@@ -288,6 +288,12 @@ namespace MacroUO
             SendMessage(windowHandle, (UInt32)WINDOW_MESSAGE.WM_KEYDOWN, (IntPtr)key, (IntPtr)scanCode);
         }
 
+        public static void SendKeyUp(IntPtr windowHandle, IntPtr keyboardLayoutHandle, UInt32 key)
+        {
+            UInt32 scanCode = (1 | (MapVirtualKeyEx(key, MAPVK_TYPE.MAPVK_VK_TO_VSC, keyboardLayoutHandle) << 16));
+            SendMessage(windowHandle, (UInt32)WINDOW_MESSAGE.WM_KEYUP, (IntPtr)key, (IntPtr)(scanCode | 0xC0000000));
+        }
+
         public static void SetPosition(IntPtr windowHandle, Rectangle rectangle)
         {
             SetWindowPos(windowHandle, IntPtr.Zero, rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, SETWINDOWPOS_FLAGS.SWP_DEFAULT);

@@ -922,7 +922,27 @@ namespace MacroUO
                         keyboardState[16] |= 0x80;
 
                     NativeMethods.KeyboardState(keyboardState);
+
+                    if (m_CheckBoxAlt.Checked)
+                        NativeMethods.SendKeyDown(windowHandle, m_KeyboardLayout, (UInt32)Keys.Menu);
+
+                    if (m_CheckBoxCtrl.Checked)
+                        NativeMethods.SendKeyDown(windowHandle, m_KeyboardLayout, (UInt32)Keys.ControlKey);
+
+                    if (m_CheckBoxShift.Checked)
+                        NativeMethods.SendKeyDown(windowHandle, m_KeyboardLayout, (UInt32)Keys.ShiftKey);
+
                     NativeMethods.SendKeyDown(windowHandle, m_KeyboardLayout, keyCode);
+                    NativeMethods.SendKeyUp(windowHandle, m_KeyboardLayout, keyCode);
+
+                    if (m_CheckBoxShift.Checked)
+                        NativeMethods.SendKeyUp(windowHandle, m_KeyboardLayout, (UInt32)Keys.ShiftKey);
+
+                    if (m_CheckBoxCtrl.Checked)
+                        NativeMethods.SendKeyUp(windowHandle, m_KeyboardLayout, (UInt32)Keys.ControlKey);
+
+                    if (m_CheckBoxAlt.Checked)
+                        NativeMethods.SendKeyUp(windowHandle, m_KeyboardLayout, (UInt32)Keys.Menu);
 
                     if (m_CheckBoxAlt.Checked)
                         keyboardState[18] &= 0x7F;
